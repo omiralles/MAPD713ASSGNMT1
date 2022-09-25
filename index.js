@@ -22,10 +22,31 @@ var pluguin = function (options) {
 //Create dependencies
 module.exports = pluguin;
 
-var seneca = require("seneca")();
-seneca.use(pluguin);
-seneca.use('seneca-entity');
 
+//Create api functionalities to call
+seneca.act({
+    use: {
+        prefix: '/mysenecaservice',
+        pin: { role: 'api', cmd: '*' },
+        map: {
+            'add-product': {POST: true},
+            'get-all-products': { GET: true },
+            'get-product': { GET: true },
+            'delete-product': { GET: true }
+        }
+    }
+})
+
+//Create counter function
+let getCounter = 0;
+let postCounter = 0;
+
+function countGetPost (req, next) {
+    if (req.method === "GET") getCounter++;
+    if (req.method === "POST") postCounter++;
+    console.log("Request counters ---> Get: " + getCounter + " ,POST: " + postCounter);
+    if (next) next();
+}
 
 //Create dependencies for the service
 var express = require('express');
