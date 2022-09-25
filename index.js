@@ -1,3 +1,4 @@
+//Create pluguin functions
 var pluguin = function (options) {
     var seneca = this;
 
@@ -18,8 +19,15 @@ var pluguin = function (options) {
     });
 }
 
+//Create dependencies
 module.exports = pluguin;
 
+var seneca = require("seneca")();
+seneca.use(pluguin);
+seneca.use('seneca-entity');
+
+
+//Create dependencies for the service
 var express = require('express');
 var app = express();
 var web = require('seneca-web');
