@@ -1,5 +1,7 @@
 //Name: Oscar Miralles Fernadez Student ID: 301250756
 
+//Count the number of insertions to delete them
+var insertCounter = 0;
 //Create pluguin
 var plugin = function (options) {
     var seneca = this;
@@ -18,6 +20,14 @@ var plugin = function (options) {
 
     seneca.add({ role: 'product', cmd: 'delete' }, function (msg, respond) {
         this.make('product').remove$(msg.data.product_id, respond);
+    });
+
+    seneca.add({ role: 'product', cmd: 'delete-all' }, function (msg, respond) {
+        //Repeat operation since the last element to send response
+        for (let index = 0; index < insertCounter - 1; index++) {
+            this.make('product').remove$({});
+        }
+        this.make('product').remove$({},respond);
     });
 }
 
@@ -41,6 +51,8 @@ seneca.add('role:api, cmd:add-product', function (args, done) {
     console.log("--> product: " + JSON.stringify(product));
     seneca.act({ role: 'product', cmd: 'add', data: product }, function (err, msg) {        
         console.log("< sending response");
+        //Increase the counter
+        insertCounter += 1;
         done(err, msg);
     });
 });
@@ -48,7 +60,7 @@ seneca.add('role:api, cmd:add-product', function (args, done) {
 seneca.add('role:api, cmd:get-all-products', function (args, done) {
     console.log("--> cmd:get-all-products");
     console.log("> recived request");
-    seneca.act({ role: 'product', cmd: 'get-all' }, function (err, msg) {        
+    seneca.act({ role: 'product', cmd: 'get-all' }, function (err, msg) {
         console.log("< sending response");
         done(err, msg);
     });
@@ -74,9 +86,11 @@ seneca.add('role:api, cmd:delete-product', function (args, done) {
 });
 
 seneca.add('role:api, cmd:delete-all-products', function (args, done) {
-    console.log("> recived request");
-    console.log("< sending response");
-    done(null, { cmd: "delete-all-products" });
+    console.log("> recived request");    
+    seneca.act({ role: 'product', cmd: 'delete-all' }, function (err, msg) {
+        console.log("< sending response");
+        done(null, { cmd: "delete-all-products" });
+    });
 });
 
 //Call types
