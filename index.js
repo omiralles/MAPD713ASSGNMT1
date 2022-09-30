@@ -81,6 +81,8 @@ seneca.add('role:api, cmd:delete-product', function (args, done) {
     console.log("> recived request");
     seneca.act({ role: 'product', cmd: 'delete', data: { product_id: args.product_id } }, function (err, msg) {        
         console.log("< sending resopnse");
+        //Decrease the counter
+        insertCounter -= 1;
         done(err, msg);
     });
 });
